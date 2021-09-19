@@ -1,0 +1,91 @@
+---
+- name: This sets up an httpd webserver
+  hosts: webserver
+  become: true
+#  become_method: su
+#  become_user: root
+  tasks:
+  - name: upgrade all packages
+    yum:
+      name: '*'
+      state: latest
+      update_cache: yes
+      update_only: yes
+    register: yum_update_status
+
+  - name: Install basic packages
+    yum:
+      name: 
+        - epel-release
+        - openssl
+        - vim
+        - lynx
+        - openssl-devel
+        - httpd
+      state: present
+      update_cache: yes
+      update_only: yes
+    register: yum_update_status
+
+
+  - name: ensure httpd is running
+    service:
+      name: httpd 
+      state: started
+      enabled: true
+
+  - name: add line in apache file
+    blockinfile:
+        dest: /etc/httpd/conf/httpd.conf
+        block: |
+                ServerSignature Off
+                ServerTokens Prod
+
+  - name: Disabling SELinux
+    selinux:
+       state: disabled
+    register: selinuxdisabled
+
+  - name: Print the changes in Configurtion file 
+    command: grep SELINUX /etc/sysconfig/selinux
+    register: sevalue
+  - debug:
+          var: sevalue.stdout_lines
+
+  - name: Wait for 5 Second and Reboot 
+    shell: "sleep 5 && reboot"     
+    async: 1
+    poll: 0
+    when: selinuxdisabled is changed
+
+  - name: Wait for the reboot to complete if there was a change.
+    wait_for_connection:
+      connect_timeout: 20
+      sleep: 5
+      delay: 5
+      timeout: 300
+    when: selinuxdisabled is changed
+
+  - name: Set IST
+    shell: "mv /etc/localtime  /etc/localtime_bkp && ln -s /usr/share/zoneinfo/Asia/Kolkata /etc/localtime"
+    async: 1
+    poll: 0
+
+
+#  - name: Install clients on server
+#    shell: |
+#      yum install -y gcc-c++ make glibc-devel
+#      yum -y install mysql redis
+  - name: Copy file with owner and permissions
+    copy:
+      src: ./mongo.repo
+      dest: /etc/yum.repos.d/
+  - name: Install mongodb-org package
+    yum:
+     name: mongodb-org
+     state: present
+
+  - name: Start the service
+    service:
+      name: mongod
+      state: started

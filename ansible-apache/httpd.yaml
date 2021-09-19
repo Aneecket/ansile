@@ -13,3 +13,7 @@
     service:
       name: httpd 
       state: started
+  - name: create content
+    copy:
+        content: "Testing comple"
+        dest: /var/www/html/index.html
