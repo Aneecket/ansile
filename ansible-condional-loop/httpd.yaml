@@ -1,0 +1,46 @@
+---
+- name: This sets up an httpd webserver
+  hosts: webserver
+  become: true
+
+  handlers:
+  - name: Restart apache
+    become: true
+    service:
+      name: httpd
+      state: restarted
+    listen: "restart apache"
+  
+  tasks:
+  - name: create config
+    file: 
+      path: /tmp/dire2
+      state: directory
+    notify: "restart apache"
+
+  - name: create config
+    file:
+      path: /tmp/dir3
+      state: directory
+
+  - name: with loops
+    file:
+      path: /home/deployer/{{ item }}
+      state: touch
+    with_items:
+     - testfile1
+     - testfile2
+     - testfile3
+
+  - name: condition ubuntu
+    file:
+      path: /home/deployer/ubuntu
+      state: touch
+    when: ansible_os_family == "Debian"
+
+  - name: condition redhat
+    file:
+      path: /home/deployer/redhat
+      state: touch
+    when: ansible_os_family == "RedHat"
+

@@ -1,0 +1,6 @@
+[webserver]
+172.50.3.244 ansible_ssh_user=centos 
+
+[webserver:vars]
+ansible_ssh_private_key_file=./gibpl.pem
+asible_ssh_user=centos
