@@ -2,6 +2,7 @@
 - name: Check if folder exist
   raw: test -e {{ working_directory }} || mkdir -p {{ working_directory }}
 
+
 - name: shell run
   git:
     repo: "{{ git_repo }}"

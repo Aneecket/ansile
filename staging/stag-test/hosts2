@@ -1,0 +1,8 @@
+[webservers]
+172.10.7.179  
+172.10.70.34
+
+[webservers:vars]
+asible_ssh_user=deployer
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+
