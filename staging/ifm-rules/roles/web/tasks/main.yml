@@ -1,0 +1,19 @@
+---
+- name: shell run
+  git:
+    repo: "{{ git_repo }}"
+    dest: "{{ working_directory }}"
+    version: "{{ BRANCH }}"
+    update: yes
+     
+  
+- name: remove images
+  shell: docker system prune -a -f
+
+- name: Test phase
+  shell: cd {{ working_directory }} && docker-compose --profile test up --build 
+  register: test_result
+  failed_when: "'failing' in  test_result.stdout"
+
+- name: Docker app run
+  shell: cd {{ working_directory }} && docker rm --force ifm-rule && docker-compose --profile service up --build -d 

@@ -1,0 +1,2 @@
+working_directory: "/home/deployer/girnarsoft-insurance-ifm-rules/staging/ifm-rules"
+git_repo: "git@bitbucket.org:girnarsoftware/girnarsoft-insurance-ifm-rules.git"
